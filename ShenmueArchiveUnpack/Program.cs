@@ -38,12 +38,25 @@ namespace ShenmueArchiveUnpack
                         //Console.WriteLine("Address: {0}", address);
 
                         var size = listReader.ReadInt64();
-                        var hash = BitConverter.ToString(listReader.ReadBytes(16)).Replace("-", "").ToLower();
+                        var hash = BitConverter.ToString(listReader.ReadBytes(12)).Replace("-", "").ToLower();
+                        listReader.ReadBytes(4); // skip 4
+
+                        dataReader.BaseStream.Seek(address, SeekOrigin.Begin);
+                        var bytes = dataReader.ReadBytes((int)size);
+
+                        var ext = ".bin";
+                        if (bytes.Length >= 3 && bytes[0] == 'D' && bytes[1] == 'D' && bytes[2] == 'S')
+                        {
+                            ext = ".dds";
+                        }
+                        else if (bytes.Length >= 4 && bytes[0] == 'D' && bytes[1] == 'X' && bytes[2] == 'B' && bytes[3] == 'C')
+                        {
+                            ext = ".dxbc";
+                        }
+
+                        File.WriteAllBytes(hash + ext, bytes);
 
                         Console.WriteLine($"{i + 1}/{numFiles}");
-                        
-                        dataReader.BaseStream.Seek(address, SeekOrigin.Begin);
-                        File.WriteAllBytes(hash, dataReader.ReadBytes((int)size));
                     }
                 }
 
