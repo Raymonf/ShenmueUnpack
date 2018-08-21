@@ -38,8 +38,7 @@ namespace ShenmueArchiveUnpack
                         //Console.WriteLine("Address: {0}", address);
 
                         var size = listReader.ReadInt64();
-                        var hash = BitConverter.ToString(listReader.ReadBytes(4)).Replace("-", "").ToLower();
-                        listReader.ReadBytes(12);
+                        var hash = BitConverter.ToString(listReader.ReadBytes(16)).Replace("-", "").ToLower();
 
                         Console.WriteLine($"{i + 1}/{numFiles}");
                         
