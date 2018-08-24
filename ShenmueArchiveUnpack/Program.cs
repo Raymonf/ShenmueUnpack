@@ -27,19 +27,18 @@ namespace ShenmueArchiveUnpack
                     // Root entry
                     listReader.ReadInt32(); // 0?
 
-                    var numFiles = listReader.ReadUInt64() - 1;
+                    var numFiles = listReader.ReadUInt64();
                     listReader.ReadUInt32(); // numFiles again but 32bit?
-
-                    listReader.ReadBytes(0x10); // skip 0x10
 
                     for (ulong i = 0; i < numFiles; i++)
                     {
+                        var hash = BitConverter.ToString(listReader.ReadBytes(16)).Replace("-", "").ToLower();
+                        //listReader.ReadBytes(12); // skip 12
+                        
                         var address = listReader.ReadInt64();
                         //Console.WriteLine("Address: {0}", address);
 
                         var size = listReader.ReadInt64();
-                        var hash = BitConverter.ToString(listReader.ReadBytes(12)).Replace("-", "").ToLower();
-                        listReader.ReadBytes(4); // skip 4
 
                         dataReader.BaseStream.Seek(address, SeekOrigin.Begin);
                         var bytes = dataReader.ReadBytes((int)size);
@@ -51,7 +50,7 @@ namespace ShenmueArchiveUnpack
                         }
                         else if (bytes.Length >= 4 && bytes[0] == 'D' && bytes[1] == 'X' && bytes[2] == 'B' && bytes[3] == 'C')
                         {
-                            ext = ".dxbc";
+                            ext = ".hlsl";
                         }
 
                         File.WriteAllBytes(hash + ext, bytes);
